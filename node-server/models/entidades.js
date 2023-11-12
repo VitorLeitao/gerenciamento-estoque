@@ -12,10 +12,6 @@ const Product = db.define('Product', {
         type: Sequelize.STRING,
         allowNull: false
     },
-    preco: {
-        type: Sequelize.FLOAT,
-        allowNull: false
-    },
     descricao: {
         type: Sequelize.STRING,
         allowNull: true
@@ -55,6 +51,7 @@ const Loja = db.define('Loja', {
 });
 
 // Entidade Cliente
+/*
 const Cliente = db.define('Cliente', {
     clienteID: {
         type: Sequelize.STRING,
@@ -67,6 +64,7 @@ const Cliente = db.define('Cliente', {
 {
     timestamps: false
 });
+*/
 
 // Entidade Oferece
 const Oferece = db.define('Oferece', {
@@ -74,11 +72,16 @@ const Oferece = db.define('Oferece', {
         type: Sequelize.INTEGER,
         allowNull: false
     },
+    precoProduto: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+    }
 },
 {
     timestamps: false
 });
 
+/* 
 // Entidade Vende
 const Vende = db.define('Vende', {
     quantidadeVendida: {
@@ -93,26 +96,40 @@ const Vende = db.define('Vende', {
 {
     timestamps: false
 });
+*/
 
 // Mapeando relacionamento Oferece
 Loja.belongsToMany(Product, { through: Oferece, foreignKey: 'cnpjLoja', onDelete: 'CASCADE' });
 Product.belongsToMany(Loja, { through: Oferece, foreignKey: 'productID', onDelete: 'CASCADE' });
 
+Oferece.belongsTo(Product, { foreignKey: 'productID' });
+Oferece.belongsTo(Loja, { foreignKey: 'cnpjLoja' });
+
+/*
 // Mapeando relacionamento Vende
-Loja.belongsToMany(Product, { through: Vende, foreignKey: 'cnpjLoja', onDelete: 'CASCADE' });
-Product.belongsToMany(Loja, { through: Vende, foreignKey: 'productID', onDelete: 'CASCADE' });
-Cliente.belongsToMany(Loja, { through: Vende, foreignKey: 'clienteID', onDelete: 'CASCADE' });
+Loja.belongsToMany(Vende, { through: Vende, foreignKey: 'cnpjLoja', onDelete: 'CASCADE' });
+Product.belongsToMany(Vende, { through: Vende, foreignKey: 'productID', onDelete: 'CASCADE' });
+Cliente.belongsToMany(Vende, { through: Vende, foreignKey: 'clienteID', onDelete: 'CASCADE' });
+*/
+
 
 // Sincroniza o modelo com o banco de dados (cria a tabela)
-Product.sync();
-Loja.sync();
-Cliente.sync();
-Vende.sync();
-Oferece.sync();
+(async () => {
+    try {
+        await Product.sync();
+        await Loja.sync();
+        await Oferece.sync();
+        //await Cliente.sync();
+        //await Vende.sync();
+        console.log('Tables synchronized successfully');
+    } catch (error) {
+        console.error('Error synchronizing tables:', error);
+    }
+})();
 
 // Exportando as entidades
 exports.productCreate = Product;
 exports.lojaCreate = Loja;
-exports.clienteCreate = Cliente;
-exports.vendeCreate = Vende;
+//exports.clienteCreate = Cliente;
+//exports.vendeCreate = Vende;
 exports.ofereceCreate = Oferece;
