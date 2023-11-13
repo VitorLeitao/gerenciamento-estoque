@@ -17,6 +17,27 @@ exports.criarProdutoGeral = async (req, res) => {
     }
 }
 
+exports.excluirProduto = async (req, res) => {
+    try{
+        const produto = await entidades.productCreate.findOne({
+            where: {
+                nome: req.body.nome
+            }
+        })
+        if(!produto){
+            return res.json({
+                mensagem: "Produto invalido"
+            })
+        }
+
+        await produto.destroy();
+        return res.json({ mensagem: 'Produto excluído com sucesso' });
+    }catch(error){
+        console.log(error);
+        res.status(500).send("Erro Interno so Servidor");
+    }
+}
+
 /*
 Usar isso no delete producs:
 // Desativa as verificações de chave estrangeira
