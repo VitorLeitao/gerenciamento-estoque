@@ -1,5 +1,5 @@
 # gerenciamento-estoque
-Projeto de gerenciamento de produtos e estoque utilizando  Express JS e react 
+Projeto de gerenciamento de produtos e estoque utilizando Express, nextJS, Typescript e react
 
 # para instalar as dependencias
 ### npm install
