@@ -168,4 +168,34 @@ exports.efetuarFornecimento = async (req, res) => {
     }
 }
 // Reajuste de Preço
+exports.reajustePreco = async(req, res) =>{
+    try{
+        const produto = await entidades.productCreate.findOne({
+            where: {nome: req.body.nomeProduto}
+        });
+        if(!produto){
+            return res.json({mensagem: "Produto Não registrado no sistema, digite novamente"});
+        }
+        const estoqueProduto = await entidades.ofereceCreate.findOne({
+            where: {productID: produto.productID,
+                    cnpjLoja: req.body.cnpj},
+        })
+        if(!estoqueProduto){
+            return res.json({mensagem: "Sua loja nao tem esse produto no estoque, digite novamente"});
+        }
+    
+        const reajustePorcentagem = Number(req.body.porcentagemMudanca) / 100;
+        if(req.body.tipoReajuste === "aumento"){
+            estoqueProduto.precoProduto += (estoqueProduto.precoProduto * reajustePorcentagem);
+        }else{
+            estoqueProduto.precoProduto -= (estoqueProduto.precoProduto * reajustePorcentagem);
+        }
+        await estoqueProduto.save(); 
+        return res.json({"Novo preço do produto: ": estoqueProduto.precoProduto});
+    }catch(error){
+        console.log(error);
+        return res.status(500).send("Erro interno do servidor");
+    }
+}
+
 
