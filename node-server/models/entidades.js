@@ -20,6 +20,9 @@ const Product = db.define('Product', {
         type: Sequelize.STRING,
         allowNull: false
     },
+    url: {
+        type: Sequelize.STRING
+    }
 },{
     timestamps: false
 });
