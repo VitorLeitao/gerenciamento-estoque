@@ -1,19 +1,25 @@
 // Importando todos os tipos de criaçaõ de entidades
 const entidades = require('../models/entidades');
 
+
+// CRIAR UMA ROTA PRA VER TODOS OS PROTUDOS - na hora que uma loja quiser cadastrar é so clicar em um deles
+
 // Criar produtos -> Criar um produto geral que pode ser utilizado por varias lojas
 exports.criarProdutoGeral = async (req, res) => {
     try {
-        // Criando um produto geral no banco de dados 
+        if((req.body.nome === '') ||(req.body.categoria === '')||(req.body.descricao === '')||(req.body.url === '')){
+            return res.status(404).send('Error interno do servidor');
+        }
         const novoProduto = await entidades.productCreate.create({
             nome: req.body.nome,
             categoria: req.body.categoria,
             descricao: req.body.descricao,
+            url: req.body.url,
         });
         res.json(novoProduto);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Erro interno do servidor');
+        res.status(404).send('Erro interno do servidor');
     }
 }
 
