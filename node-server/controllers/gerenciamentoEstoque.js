@@ -40,7 +40,7 @@ exports.consultarProdutosCnpj = async (req, res) => {
             // Unindo com produto
             include: [{
                 model: entidades.productCreate,
-                attributes: ['nome','categoria', 'descricao'],
+                attributes: ['nome','categoria', 'descricao', 'url'],
             }],
             attributes: ['precoProduto','quantidadeEstoque'],
             where:{
