@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast, toast } from "@/components/ui/use-toast"
 import { Label } from "@/components/ui/label"
-import * as z from 'zod';
+import { z, ZodError } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -19,13 +19,14 @@ import {
   FormDescription,
   FormMessage,
 } from '@/components/ui/form';
+import { getRandomValues } from 'crypto';
 
 const FormLoginSchema = z.object({
   cnpj: z.string().min(1, 'CNPJ is required').max(14, 'CNPJ inválido'),
   password: z
     .string()
     .min(1, 'Password is required')
-    .min(8, 'Password must have than 8 characters'),
+    .min(2, 'Password must have than 2 characters'),
 });
 
 const FormCadastroSchema = z.object({
@@ -33,11 +34,16 @@ const FormCadastroSchema = z.object({
   password: z
     .string()
     .min(1, 'Password is required')
-    .min(8, 'Password must have than 8 characters'),
+    .min(5, 'Password must have than 8 characters'),
   senhaRepetida: z.string().min(1, 'senha is required'),
   nome: z.string().min(1, 'nome is required'),
   email: z.string().min(1, 'email is required'),
   ramo: z.string().min(1, 'ramo is required'),
+}).refine((data) => data.password === data.senhaRepetida, {
+  message: "Passwords don't match",
+  path: ["confirm"],
+}).refine((data) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email), {
+  message: 'Invalid email format',
 });
 
 const Home: React.FC = () => {
@@ -77,8 +83,20 @@ const Home: React.FC = () => {
   const handleSumitLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      
+      // Antes de tudo temos que validas as informações do form
       const { cnpj, password } = await formLogin.getValues();
+
+      // Validando os valores do formulario com zod
+      try {
+        FormLoginSchema.parse({ cnpj, password });
+      } catch (validationError) {
+        if (validationError instanceof ZodError) {
+          const errorMessage = validationError.errors.map((error) => error.message).join(', ');
+          enviaToast(errorMessage, 'name', '#FF0000', 'white');
+        }
+        return; 
+      }
+
       const response = await fetch('http://localhost:2800/loginLoja', {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
@@ -111,7 +129,40 @@ const Home: React.FC = () => {
   }
   const handleSumitCadastro = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Recebi o forms do Cadastro');
+    try {
+      const { cnpj, password, senhaRepetida, nome, email, ramo } = await formCadastro.getValues();
+      try{
+        FormCadastroSchema.parse({ cnpj, password, senhaRepetida, nome, email, ramo })
+      }catch(validationError){
+        if (validationError instanceof ZodError) {
+          const errorMessage = validationError.errors.map((error) => error.message).join(', ');
+          enviaToast(errorMessage, 'name', '#FF0000', 'white');
+        }
+        return; 
+      }
+      const response = await fetch('http://localhost:2800/cadastrarLoja', {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          "cnpjLoja": cnpj,
+          "senha": password,
+          "nome": nome,
+          "email": email,
+          "ramo": ramo
+        }),
+      });
+
+      if (response.status === 200) {
+        formCadastro.reset();
+        formLogin.setValue("cnpj", cnpj);
+        enviaToast("Cadastro realizado com sucesso", "name", "#4CAF50", "white");
+      } else {
+        enviaToast("Dados Incorretos", "name", "#FF0000", "white");
+      }
+    } catch (error) {
+      enviaToast("Erro interno do servidor", "name", "#FF0000", "white");
+      console.log(error)
+    }
   }
 
   return (
