@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast, toast } from "@/components/ui/use-toast"
 import * as z from 'zod';
+import { Label } from "@/components/ui/label"
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     Form,
@@ -74,9 +75,12 @@ const cadastrarProdutoUnico = (novoProduto: produtoCreate) => {
 
         // Vamos usar essa instancia para chamar nossa rota
         try {
+            // Pegando o token de login
+            const token = await localStorage.getItem('token');
             const response = await fetch('http://localhost:2800/criarProdutoGeral', {
                 method: "POST",
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`}, // Enviando o token
                 body: JSON.stringify(instanciaProduto),
             });
             console.log(response);
@@ -84,7 +88,6 @@ const cadastrarProdutoUnico = (novoProduto: produtoCreate) => {
                 enviaToast("Produto adicionado com sucesso", "name", "#4CAF50", "white");
                 form.reset();
             } else {
-                console.log("Erro ao adicionar produto")
                 enviaToast("Erro ao adicionar produto", "name", "#FF0000", "white");
             }
         } catch (error) {
@@ -94,6 +97,7 @@ const cadastrarProdutoUnico = (novoProduto: produtoCreate) => {
 
     return (
         <div>
+            <Label className="flex justify-center text-4xl pt-10">Cadastrar produto</Label>
             <div className="flex items-center justify-center h-screen border">
                 <div className="border p-10 shadow-xl rounded-lg bg-white">
                     <Form {...form}>

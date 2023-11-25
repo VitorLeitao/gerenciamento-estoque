@@ -11,9 +11,9 @@ const NavBar: React.FC<{ children?: ReactNode }> = ({ children }) => {
               <h1 className="text-2xl font-bold">Free Lance</h1>
             </div>
             <div className="flex space-x-4">
-              <a href="#" className="text-white hover:text-gray-300">Home</a>
-              <a href="#" className="text-white hover:text-gray-300">Ofertar</a>
-              <a href="#" className="text-white hover:text-gray-300">Sair</a>
+              <a href="http://localhost:3000/produtosLoja" className="text-white hover:text-gray-300">Home</a>
+              <a href="http://localhost:3000/OfertarProdutos" className="text-white hover:text-gray-300">Ofertar</a>
+              <a href="http://localhost:3000/create" className="text-white hover:text-gray-300">Cadastrar produto</a>
             </div>
           </div>
         </div>

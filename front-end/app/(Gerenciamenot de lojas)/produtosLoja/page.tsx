@@ -89,6 +89,32 @@ export default function Home() {
       }
     });
   }
+  const handleDelete = async (e: React.FormEvent, nomeProduto: String) => {
+    e.preventDefault();
+    try{
+      const cnpjLoja = await localStorage.getItem('cnpjLoja'); // Precisa do cnpj para a rota
+
+      const response = await fetch(`http://localhost:2800/cancelarOfertaProduto`, {
+        method: "DELETE",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          "nomeProduto": nomeProduto,
+          "cnpj": cnpjLoja,
+        }),
+      })
+    
+      if (response.status === 200){
+        enviaToast("Produto deletado com sucesso", "name", "#4CAF50", "white");
+      }else{
+        enviaToast("Erro ao deletar produto", "name", "#FF0000", "white");
+      }
+      form.reset();
+      itensLoja(); // Carrega os itens novamente
+    }catch{
+      enviaToast("Erro ao deletar produto", "name", "#FF0000", "white");
+    }
+
+  }
 
   const handleSubmit = async (e: React.FormEvent, nomeProduto: String) => {
     e.preventDefault();
@@ -170,7 +196,7 @@ export default function Home() {
                 <CardTitle>{item.Product.nome}</CardTitle>
               </CardHeader>
               <div className='flex items-center justify-center'>
-                <Image src={item.Product.url} alt={item.Product.nome} width={300} height={200} />
+                <img src={item.Product.url} alt={item.Product.nome} width={300} height={200} />
               </div>
               <CardContent className="text-center">
                 <p>R${item.precoProduto}</p>
@@ -228,9 +254,14 @@ export default function Home() {
                               </FormItem>
                             )}
                           />
+                          <div className="flex space-x-4">
                           <DialogClose asChild>
-                            <Button className="w-full" type="submit">Submit</Button>
-                          </DialogClose>
+                              <Button className="w-full bg-red-500" onClick={(e) => handleDelete(e, item.Product.nome)}>Delete product</Button>
+                            </DialogClose>
+                            <DialogClose asChild>
+                              <Button className="w-full" type="submit">Submit</Button>
+                            </DialogClose>
+                          </div>
                         </form>
                       </Form>
                     </DialogHeader>

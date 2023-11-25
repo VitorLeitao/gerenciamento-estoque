@@ -194,7 +194,7 @@ const Home: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className='flex items-center justify-center'>Password</FormLabel>
-                        <Input {...field} />
+                        <Input type="password" {...field} />
                       </FormItem>
                     )}
                   />
@@ -235,7 +235,7 @@ const Home: React.FC = () => {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className='flex items-center justify-center'>Password</FormLabel>
-                            <Input {...field} />
+                            <Input type="password" {...field} />
                           </FormItem>
                         )}
                       />
@@ -250,7 +250,7 @@ const Home: React.FC = () => {
                           <FormItem>
                             <FormLabel className='flex items-center justify-center'>senhaRepetida</FormLabel>
                             <FormControl>
-                              <Input {...field} />
+                              <Input type="password" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
