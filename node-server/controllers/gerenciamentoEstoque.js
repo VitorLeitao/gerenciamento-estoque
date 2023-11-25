@@ -1,7 +1,6 @@
 // Importando todos os tipos de criaçaõ de entidades
 const entidades = require('../models/entidades');
-
-// Refatoração -> colocar as funções (!value) pra fora
+const { Op, sequelize } = require('sequelize');
 
 // Cadastro de produtos -> Loja vai começar a oferecer um certo produto no seu estoque e colocar um preço para ele
 exports.cadastroProdutosEstoque = async (req, res) => {
@@ -22,10 +21,8 @@ exports.cadastroProdutosEstoque = async (req, res) => {
             quantidadeEstoque: req.body.quantidadeEstoque,
             precoProduto: req.body.preco
         });
-
         res.json(novoEstoque);
     } catch (error) {
-        console.error(error);
         res.status(500).send('Erro interno do servidor');
     }
 }
@@ -179,3 +176,33 @@ exports.reajustePreco = async (req, res) => {
 }
 
 
+// Rota para retornar todos os produtos que a loja não oferta
+exports.produtosNaoOfertados = async (req, res) => {
+    try {
+        // Primeiramente vamos pegar todos os produtos que sao ofertados
+        const produtosOfertados = await entidades.ofereceCreate.findAll({
+            attributes: ['productID'],
+            where: {
+                cnpjLoja: req.params.cnpj
+            }
+        });
+
+        // Extraia os productIDs da resposta da consulta
+        const productIDsOfertados = produtosOfertados.map(oferta => oferta.productID);
+
+        // Agora vamos pegar todos os produtos que nãp estao na lista de produtos ofertados
+        const produtosNaoOfertados = await entidades.productCreate.findAll({
+            attributes: ['productID', 'categoria', 'descricao', 'nome', 'url'],
+            where: {
+                productID: {
+                    [Op.notIn]: productIDsOfertados
+                }
+            },
+        });
+
+        res.json(produtosNaoOfertados);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send("Erro interno do servidor");
+    }
+};

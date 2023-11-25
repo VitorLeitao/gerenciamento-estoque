@@ -34,7 +34,7 @@ exports.login = async (req, res) => {
         }
         // Criando o token
         const token = jwt.sign({name: loja.nome}, SECRET,{
-            expiresIn: 4 * 60 // 4 minutos
+            expiresIn: 50 * 60 // 50 minutos -- Fase teste
         })
 
         res.status(200).json({
